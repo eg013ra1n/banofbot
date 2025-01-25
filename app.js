@@ -36,14 +36,28 @@ mongoose.connect(config.database, {
   useUnifiedTopology: true,
   useNewUrlParser: true,
 })
+  .then(() => {
+    console.log('Successfully connected to MongoDB'); 
+  })
+  .catch((err) => {
+    console.error('Error connecting to MongoDB:', err.message); 
+  });
+
 mongoose.connection.on('disconnected', () => {
+  console.warn('MongoDB connection lost. Attempting to reconnect...');
   mongoose.connect(config.database, {
     socketTimeoutMS: 0,
     connectTimeoutMS: 0,
     useUnifiedTopology: true,
     useNewUrlParser: true,
   })
-})
+    .then(() => {
+      console.log('Reconnected to MongoDB successfully');
+    })
+    .catch((err) => {
+      console.error('Reconnection attempt failed:', err.message);
+    });
+});
 mongoose.set('useCreateIndex', true)
 mongoose.set('useFindAndModify', false)
 
@@ -53,6 +67,7 @@ setTimeout(() => {
 }, 5000)
 
 bot.on('message', (msg) => {
+  console.log('Received message:', msg); // Лог входящих сообщений
   if (!timeoutOver) {
     return
   }
